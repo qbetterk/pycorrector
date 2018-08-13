@@ -9,6 +9,7 @@ import sys
 sys.path.append("../")
 
 import numpy as np
+import jieba.posseg as pseg
 
 import pycorrector.config as config
 from pycorrector.utils.io_utils import dump_pkl
@@ -110,55 +111,41 @@ def _get_maybe_error_index(scores, ratio=0.6745, threshold=0.5):
 
 def detect(sentence):
     maybe_error_indices = set()
-    # 文本归一化
-    sentence = uniform(sentence)
-    # 切词
 
-    # if not isinstance(sentence, unicode):
-    #     sentence = unicode(sentence, "utf-8")
+    sentence = uniform(sentence)
 
     tokens = tokenize(sentence)
 
-    # #####################
-    # print(tokens)
-    # pdb.set_trace()
-    # #####################
-
-    # 未登录词加入疑似错误字典
+    # unknown chars
     for word, begin_idx, end_idx in tokens:
         if word not in PUNCTUATION_LIST and word not in word_freq.keys():
             for i in range(begin_idx, end_idx):
                 maybe_error_indices.add(i)
                 
 
-
-    # 语言模型检测疑似错字
     ngram_avg_scores = []
     try:
-        for n in [2, 3]:
+        for n in [1, 2, 3]:
             scores = []
             for i in range(len(sentence) - n + 1):
                 word = sentence[i:i + n]
                 score = get_ngram_score(list(word), mode=trigram_char)
                 scores.append(score)
-            # 移动窗口补全得分
+
             for _ in range(n - 1):
                 scores.insert(0, scores[0])
                 scores.append(scores[-1])
+
             avg_scores = [sum(scores[i:i + n]) / len(scores[i:i + n]) for i in range(len(sentence))]
             ngram_avg_scores.append(avg_scores)
 
-        # 取拼接后的ngram平均得分
+
         sent_scores = list(np.average(np.array(ngram_avg_scores), axis=0))
         maybe_error_char_indices = _get_maybe_error_index(sent_scores)
 
-        # #####################
-        # print(maybe_error_char_indices)
-        # print([sentence[i] for i in maybe_error_char_indices])
-        # pdb.set_trace()
-        # #####################
 
-        # 合并字、词错误
+
+
         maybe_error_indices |= set(maybe_error_char_indices)
     except IndexError as ie:
         print("index error, sentence:", sentence, ie)
@@ -166,60 +153,23 @@ def detect(sentence):
     except Exception as e:
         print("detect error, sentence:", sentence, e)
 
+    # # to get rid of special nouns like name
+    seg = pseg.lcut(sentence)
+    # # in the form of list of pair(w.word, w.flag)
+    word = [w.word for w in seg]
+    tag  = [w.flag for w in seg]
 
-    ####################
-    # print(tokens)
+    for i in range(len(tag)):
+        if tag[i] in {'nz','nr','nt','ns'} and len(word[i]) > 1:
+            maybe_error_indices -= set(range(len(''.join(word[:i])), len(''.join(word[:i + 1]))))
+
+
+    # #####################
     # print(maybe_error_indices)
     # print([sentence[i] for i in maybe_error_indices])
-    # # pdb.set_trace()
-    ####################
-
-    ##########################################
-    # maybe_error_indices = sorted(maybe_error_indices)
-
-    # maybe_error_indices_in_token = []
-    # for idx in sorted(maybe_error_indices):
-    #     for word, begin_idx, end_idx in tokens:
-    #         if begin_idx <= idx < end_idx and \
-    #            [begin_idx, end_idx] not in maybe_error_indices_in_token:
-    #             if maybe_error_indices_in_token and maybe_error_indices_in_token[-1][-1] >= begin_idx:
-    #                 maybe_error_indices_in_token[-1][-1] = end_idx
-    #             else:
-    #                 maybe_error_indices_in_token.append([begin_idx, end_idx])
-
-    # # print(tokenize('真户秃'))
-    # print(maybe_error_indices_in_token)
     # pdb.set_trace()
+    # #####################
 
-    ##########################################
-
-
-    # return maybe_error_indices_in_token
     return sorted(maybe_error_indices)
 
 
-if __name__ == '__main__':
-    # sent = '少先队员因该为老人让坐'
-    # sent = '机七学习是人工智能领遇最能体现智能的一个分知'
-    sent = '天明到厨房去拿啤酒跟絣杆'
-    error_list = detect(sent)
-    print(error_list)
-
-    sent_chars = [sent[i] for i in error_list]
-    print(sent_chars)
-
-    # from pycorrector.utils.text_utils import segment, tokenize
-
-    # print(get_ngram_score(segment(sent)))
-    # print(get_ppl_score(segment(sent)))
-
-    # print(get_ngram_score(list(sent), mode=trigram_char))
-    # print(get_ppl_score(list(sent), mode=trigram_char))
-
-    # sent = '天明到厨房去拿啤酒跟絣杆'
-    # print(detect(sent))
-    # print(get_ngram_score(segment(sent)))
-    # print(get_ppl_score(segment(sent)))
-
-    # print(get_ngram_score(list(sent), mode=trigram_char))
-    # print(get_ppl_score(list(sent), mode=trigram_char))
