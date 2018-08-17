@@ -160,8 +160,16 @@ def detect(sentence):
     tag  = [w.flag for w in seg]
 
     for i in range(len(tag)):
-        if tag[i] in {'nz','nr','nt','ns'} and len(word[i]) > 1:
-            maybe_error_indices -= set(range(len(''.join(word[:i])), len(''.join(word[:i + 1]))))
+        if tag[i] in {'nz','nr','nt','ns'}:
+            if i > 0 and tag[i - 1] == 'd':
+                continue
+                
+            if len(word[i]) > 1:
+                maybe_error_indices -= set(range(len(''.join(word[:i])), \
+                                                 len(''.join(word[:i + 1]))))
+            elif i + 1 < len(tag) and tag[i + 1] in {'nz','nr','nt','ns'}:
+                maybe_error_indices -= set(range(len(''.join(word[:i])), \
+                                                 len(''.join(word[:i + 2]))))               
 
 
     # #####################
