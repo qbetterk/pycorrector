@@ -21,7 +21,6 @@ from pycorrector.utils.io_utils import get_logger
 from pycorrector.utils.io_utils import load_pkl
 from pycorrector.utils.text_utils import uniform, tokenize
 
-# pwd_path = os.path.abspath(os.path.dirname(__file__))
 default_logger = get_logger(__file__)
 
 trigram_char_path = os.path.join(pwd_path, config.language_model_path)
@@ -101,12 +100,6 @@ def _get_maybe_error_index(scores, ratio=0.6745, threshold=0.5):
     scores = scores.flatten()
     maybe_error_indices = np.where((y_score > threshold) & (scores < median))
 
-    # ######################
-    # print(y_score)
-    # pdb.set_trace()
-    ######################
-
-    # 取全部疑似错误字的index
     return list(maybe_error_indices[0])
 
 
@@ -171,9 +164,9 @@ def detect(sentence):
             elif i + 1 < len(tag) and tag[i + 1] in {'nz','nr','nt','ns'}:
                 maybe_error_indices -= set(range(len(''.join(word[:i])), \
                                                  len(''.join(word[:i + 2]))))               
-        if tag[i] == 'j' and len(word[i]) > 1:
-            maybe_error_indices -= set(range(len(''.join(word[:i])), \
-                                             len(''.join(word[:i + 1]))))
+        # if tag[i] == 'j' and len(word[i]) > 1:
+        #     maybe_error_indices -= set(range(len(''.join(word[:i])), \
+        #                                      len(''.join(word[:i + 1]))))
     return sorted(maybe_error_indices)
 
 def parse():

@@ -115,7 +115,7 @@ Invoke a command without arguments to list available arguments and their default
 
 Error detection:
 ```
-$ python ./pycorrector/corrector.py
+$ python ./pycorrector/detector.py
 
 The following arguments are mandatory( not if you would like to correct sentence one by one):
   -i                  file path to error sentences

@@ -29,10 +29,10 @@ def parse():
                         default = False,
                         help = 'show the detail of correction or not')
     parser.add_argument('--param_ec', type = float,
-                        default = 1.4,
+                        default = 1.5,
                         help = 'parameter for adjust the weight of edition cost')
     parser.add_argument('--param_gd', type = float,
-                        default = 2,
+                        default = 2.5,
                         help = 'parameter for adjust the weight of global decision')
     return parser.parse_args()
 

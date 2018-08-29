@@ -42,6 +42,15 @@ def main():
         PUNCTUATION_LIST = "。，,、？：；{}[]【】“‘’”《》/！%……（）<>@#$~^￥%&*\"\'=+-"
         for line in tqdm(file_in):
             line = line.strip()
+            if not is_chinese(line[0]) and line[0] not in {'“', '‘', '{', '[', '【', '（', '<', '《'}:
+                continue
+            if line[-1] not in {'。', '？', '”', '！', '……', '’', '）'}:
+                if is_chinese(line[-1]):
+                    line += '。'
+                else:
+                    continue
+            if len(line) < 5:
+                continue
             if False not in [(char in PUNCTUATION_LIST or is_chinese(char)) for char in line]:
                 line = traditional2simplified(line)
                 file_ou.write(line + '\n')

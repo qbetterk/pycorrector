@@ -15,11 +15,6 @@ char_level_lm=True
 # n-gram model
 ngram=5
 
-# if [ $stage -le 0 ]; then
-#     # # checkout update
-#     git_url="https://github.com/qbetterk/pycorrector.git"
-#     git pull $git_url
-# fi
 
 if [ $stage -le 1 ]; then
     # # dependency 

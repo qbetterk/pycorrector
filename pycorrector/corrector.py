@@ -301,7 +301,10 @@ def get_valid_sub_array(sentence, sub_array_list):
 
 
 def count_diff(str1, str2):
-    # # assuming len(str1) == len(str2)
+    """
+    Counting the number of different chars between two string.
+    Assuming len(str1) == len(str2)
+    """
     count = 0
     for i in range(len(str1)):
         if str1[i] != str2[i]:
@@ -311,6 +314,19 @@ def count_diff(str1, str2):
 
 
 def correct_stat(sentence, sub_sents, param_ec, param_gd):
+    """
+    statistical correction
+
+    input
+        sentence : error sentence in form of string
+        sub_sents: pair of index range of suspect chars and corresponding suspect chars
+                   in the form like: [['str(b_idx),str(e_idx)',str(suspect_chars)], ...]\
+        param_ec : paramter for edition cost, might change for matching your own language model
+        param_gd : paramter for global decision, might change for different lm
+    output
+        sentence : corrected sentence in form of string
+        detail   : correction detail in form like [[err_chars, cor_chars, b_idx, e_idx + 1]]
+    """
 
     detail = []
     cands   = []
@@ -363,6 +379,10 @@ def correct_stat(sentence, sub_sents, param_ec, param_gd):
 
 
 def get_sub_sent(idx, sentence):
+    """
+    To get the longest sub_sentence which the target char(sentence[idx]) belong to 
+    and does not contain any non-charactor symbol(punctuation)
+    """
     begin_id = 0
     end_id = 0
     for i in range(idx,-1,-1):
@@ -376,11 +396,21 @@ def get_sub_sent(idx, sentence):
     return [begin_id, end_id]
 
 
-def correct_rule(sentence, sub_sents):
+def correct_rule(sentence):
+    """
+    rule-based correction(strongly depending on POS tagging)
+
+    input
+        sentence : error sentence
+    output
+        sentence : corrected sentence
+        detail   : correction detail(exactly same form as that of correct_stat())
+    """
     detail = []
 
     old_sentence = sentence
 
+    # # rule for '他她它' here is too simple to apply for present, improvement needed!
     # # rule for '他她它'('he, she, it')
     # dict_hsi  = {
     #             '他' : {'爸','父','爷','哥','弟','兄','子','叔','伯','他','爹','先生'},
@@ -523,7 +553,7 @@ def correct_rule(sentence, sub_sents):
                     else:
                         sentence = sentence[:idx] + '那' + sentence[idx + 1:]
 
-    # # rule for '那哪'           // 目前还不能识别反问句
+    # # rule for '门们'
     if set(sentence) & {'门', '们'}:
         for idx in [i for i in range(len(sentence)) if sentence[i] in {'门', '们'}]:
             if idx == 0:
@@ -539,19 +569,22 @@ def correct_rule(sentence, sub_sents):
     return sentence, detail
 
 
-def correct(sentence, param_ec = 1.4, param_gd = 2):
+def correct(sentence, param_ec = 1.5, param_gd = 2.5):
 
     detail = []
 
+    # # detecting for errors
     maybe_error_ids = get_valid_sub_array(sentence, get_sub_array(detect(sentence)))
 
-
+    # # transfer index of error chars into pairs of (idx, error_chars)
     suspect_chars = [[','.join([str(i[0]), str(i[-1])]), sentence[i[0]: i[-1]]] for i in maybe_error_ids]
 
+    # # statistical correction
     sentence, detail_stat = correct_stat(sentence, suspect_chars, param_ec, param_gd)
     detail += detail_stat
 
-    sentence, detail_rule = correct_rule(sentence, suspect_chars)
+    # # rule-based correction
+    sentence, detail_rule = correct_rule(sentence)
     detail += detail_rule
 
     return sentence, detail
@@ -571,10 +604,10 @@ def parse():
                         default = False,
                         help = 'show the detail of correction or not')
     parser.add_argument('--param_ec', type = float,
-                        default = 1.4,
+                        default = 1.5,
                         help = 'parameter for adjust the weight of edition cost')
     parser.add_argument('--param_gd', type = float,
-                        default = 2,
+                        default = 2.5,
                         help = 'parameter for adjust the weight of global decision')
     return parser.parse_args()
 
