@@ -226,8 +226,6 @@ def _generate_items(sentence, idx, word, fraction=1):
                         if char_i + char_j in two_char_dict:
                             result.add(word[:i] + char_i + char_j + word[i + 2:])
 
-
-
             return result
 
         confusion_word_set = confusion_set(sentence, idx, word)
