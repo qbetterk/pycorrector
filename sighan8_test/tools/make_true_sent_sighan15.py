@@ -10,10 +10,10 @@ import sys
 sys.path.append("../")
 
 def main():
-    file_sent   = open('sighan8csc_release1.0/Test/SIGHAN15_CSC_TestInput_mod.txt', 
+    file_sent   = open('sighan8csc_release1.0/Test/SIGHAN15_CSC_TestInput.txt', 
                        'rb', encoding = 'utf-8').readlines()
 
-    file_change = open('sighan8csc_release1.0/Test/SIGHAN15_CSC_TestTruth_mod.txt',
+    file_change = open('sighan8csc_release1.0/Test/SIGHAN15_CSC_TestTruth.txt',
                        'rb', encoding = 'utf-8').readlines()
 
     for idx, line in enumerate(file_change):

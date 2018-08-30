@@ -226,8 +226,6 @@ def _generate_items(sentence, idx, word, fraction=1):
                         if char_i + char_j in two_char_dict:
                             result.add(word[:i] + char_i + char_j + word[i + 2:])
 
-
-
             return result
 
         confusion_word_set = confusion_set(sentence, idx, word)
@@ -563,7 +561,7 @@ def correct_rule(sentence):
 
     for idx in range(len(sentence)):
         if sentence[idx] != old_sentence[idx]:
-            detail.append([old_sentence[idx], sentence[idx], idx, idx + 1])
+            detail.append([(old_sentence[idx], sentence[idx], idx, idx + 1)])
 
 
     return sentence, detail

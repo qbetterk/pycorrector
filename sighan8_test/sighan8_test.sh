@@ -7,7 +7,7 @@ start_time=`date +%s`
 
 
 # # correct
-python sighan8_test.py -e sighan8csc_release1.0/Test/SIGHAN15_CSC_TestInput.txt
+python sighan8_test.py
 
 
 end_time=`date +%s`
