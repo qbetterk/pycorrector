@@ -563,7 +563,7 @@ def correct_rule(sentence):
 
     for idx in range(len(sentence)):
         if sentence[idx] != old_sentence[idx]:
-            detail.append([old_sentence[idx], sentence[idx], idx, idx + 1])
+            detail.append([(old_sentence[idx], sentence[idx], idx, idx + 1)])
 
 
     return sentence, detail

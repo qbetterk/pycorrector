@@ -72,6 +72,7 @@ def eval_sighan_corpus(pkl_path, verbose=False):
             total_count += 1
             # pdb.set_trace()
             if pred_detail:
+                # print(pred_detail)
                 for [(pred_w, pred_r, pred_beg, pred_end)] in pred_detail:
                     if right_r in pred_r or pred_r in right_r:
                         right_count += 1
